@@ -11,9 +11,14 @@ import java.net.ServerSocket;
  */
 public class MiniFoxProcess {
     public static void main(String[] args) throws IOException {
+        int port = 5678;
+        if(args.length>0) {
+            port = Integer.parseInt(args[0]);
+        }
+
         Config.init();
 
-        ServerSocket server = new ServerSocket(5678);
+        ServerSocket server = new ServerSocket(port);
         while (true) {
             Listener listener = new Listener(server.accept());
             listener.start();

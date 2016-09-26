@@ -50,7 +50,7 @@ public class Config {
         String configFileName = System.getProperty("config", DEFAULT);
         File configFile = new File(configFileName);
         if (!configFile.isFile()) {
-            throw new ConfigCheckedException("配置文件不存在！");
+            throw new ConfigCheckedException("配置文件[" + configFile.getAbsolutePath() + "]不存在！");
         }
 
         BufferedReader br = null;
