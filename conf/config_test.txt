@@ -1,0 +1,11 @@
+#url配置
+/order/test
+#默认返回文件名
+_default                 ^default.txt
+#规则(节点=值)^返回文件名
+status=fail,oid=HD-01001  ^a.txt
+status=success            ^b.xml
+#url配置结束标志
+_end
+
+

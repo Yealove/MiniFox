@@ -23,7 +23,7 @@ public class Tester {
 
     public static void main(String[] args) {
         try {
-            String url = "http://192.168.1.105:5678/ordercenter/test";
+            String url = "http://192.168.1.105:5678/order/test";
             // 使用默认配置创建httpclient的实例
             CloseableHttpClient client = HttpClients.createMinimal();
 
@@ -33,7 +33,7 @@ public class Tester {
              * 设置参数，常用的有StringEntity,UrlEncodedFormEntity,MultipartEntity
              * 具体看org.apache.http.entity包
              */
-            List<NameValuePair> params = new ArrayList<>();
+            List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair("username", "张三"));
             params.add(new BasicNameValuePair("password", "123456"));
             UrlEncodedFormEntity e = new UrlEncodedFormEntity(params, "UTF-8");
@@ -51,7 +51,8 @@ public class Tester {
             if(entity != null) {
                 respStr = EntityUtils.toString(entity, "UTF-8");
             }
-            System.out.println("respStr = " + respStr);
+            System.out.println();
+            System.out.println(respStr);
             // 释放资源
             EntityUtils.consume(entity);
         } catch (Exception e) {
