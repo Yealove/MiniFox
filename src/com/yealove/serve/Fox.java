@@ -1,4 +1,4 @@
-package com.yealove.listener;
+package com.yealove.serve;
 
 import com.yealove.common.Config;
 import com.yealove.common.ConfigCheckedException;
@@ -11,19 +11,19 @@ import java.net.Socket;
 import java.util.Date;
 
 /**
- * 监听处理类
+ * 对请求的处理类
  * <p>
  * Created by Yealove on 2016-09-24.
  */
-public class Listener extends Thread {
+public class Fox extends Thread {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Listener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Fox.class);
 
     private Socket client;
 
     private boolean finishRead = false;
 
-    public Listener(Socket client) {
+    public Fox(Socket client) {
         this.client = client;
     }
 
@@ -70,14 +70,16 @@ public class Listener extends Thread {
                     if (dataSize > 0) {
                         char[] data = new char[dataSize];
                         in.read(data, 0, dataSize);
-                        request = String.valueOf(data);
+                        //将
+                        request = String.valueOf(data).trim().replaceAll("\\r\\n|\\r", "\n");
 
-                        LOG.info(request);
+                        LOG.info("----------request: \n" + request);
                     }
 
                     finishRead = true;
                 }
             }
+
             LOG.debug("------request end------");
 
             /* Http响应格式：
@@ -87,6 +89,7 @@ public class Listener extends Thread {
              * [<response-body>]
              */
             writeHttpHead(out);
+
             writeHttpBody(out, url, request);
 
             out.flush();
@@ -94,6 +97,8 @@ public class Listener extends Thread {
         } catch (IOException e) {
             LOG.error(e.getMessage());
         } catch (ConfigCheckedException e) {
+            LOG.error(e.getMessage());
+
             if(out != null) {
                 out.write(e.getMessage());
                 out.flush();
@@ -126,6 +131,10 @@ public class Listener extends Thread {
      * @param xml
      */
     private static void writeHttpBody(PrintWriter out, String url, String xml) {
+        if("".equals(url)) {
+            throw new ConfigCheckedException("非常抱歉，目前我只能处理POST请求(ಥ _ ಥ)");
+        }
+
         String fileName = Config.getResultFileName(url, xml);
         File file = new File(fileName);
         if (!file.isFile()) {
@@ -133,14 +142,17 @@ public class Listener extends Thread {
         }
 
         FileReader fis = null;
+        StringBuilder sb = new StringBuilder();
         try {
             fis = new FileReader(file);
             char[] buf = new char[512];
             int temp;
             while ((temp = fis.read(buf)) != -1) {
+                sb.append(buf);
                 out.write(buf, 0, temp);
             }
             out.flush();
+            LOG.info("----------response: \n" + sb.toString().trim());
         } catch (IOException e) {
             LOG.error(e.getMessage());
         } finally {

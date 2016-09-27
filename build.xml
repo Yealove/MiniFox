@@ -1,59 +1,40 @@
 <?xml version="1.0"?>
-<project name="MiniFox" default="fatjar" basedir="./">
+<project name="MiniFox" default="finish" basedir="./">
 
-    <!--构造打包时Class-Path需要的路径      start-->
-    <!--pathconvert用于对目录进行组合 property即这个组合的名字，pathsep作用是各个文件之间的分隔符，
-        如果不写，在windows平台默认是分号。但时在MANIFEST.MF这个文件中，各个jar包之间要用空格区分，
-        因此。这里就写成空格了 -->
-    <pathconvert property="lib" pathsep=" ">
-        <!--mapper,对路径组合方式进行控制-->
-        <mapper>
-            <!--chainedmapper 作用是联合多个mapper-->
-            <chainedmapper>
-                <!--过滤文件，将路径去掉，只保留文件名-->
-                <flattenmapper />
-                <!--过滤+转换器，将所有的文件名前面都加上一个lib，我们知道lib目录下面有jar包，
-                    lib/*的作用其实是将jar包名与路径进行组合形成如：lib/google.jar这样的相对路径 -->
-                <globmapper from="*" to="../../lib/*" />
-            </chainedmapper>
-        </mapper>
-        <!--按照mapper定义的格式组合lib目录下面的所有jar文件，形成诸如lib/jar1.jar lib/jar2.jar的字符串-->
-        <fileset dir="lib">
-            <include name="*.jar" />
-        </fileset>
-    </pathconvert>
-    <!--构造打包时Class-Path需要的路径      end-->
+    <property name="jarName" value="minifox.jar"/>
+    <property name="mainClass" value="com.yealove.serve.MiniFoxServe"/>
 
-
-    <!-- 鼠标位置 -->
     <property name="dest" value="build"/>
+    <property name="dest.src" value="${dest}/src"/>
     <property name="dest.classes" value="${dest}/classes"/>
-    <property name="dest.name" value="minifox.jar"/>
-    <property name="dest.src" value="src"/>
-    <property name="dest.main" value="com.yealove.listener.MiniFoxProcess"/>
 
     <target name="init">
         <delete dir="${dest}"/>
 
-        <!--<mkdir dir="${build}"/>-->
         <mkdir dir="${dest}"/>
-        <mkdir dir="${dest.classes}"/>
         <mkdir dir="${dest.src}"/>
+        <mkdir dir="${dest.classes}"/>
     </target>
 
     <target name="prepare" depends="init">
-        <copy todir="${dest}/${dest.src}">
+        <copy todir="${dest}">
+            <file basedir="conf" file="conf/config.txt"/>
+            <file basedir="conf" file="conf/start.bat"/>
+        </copy>
+
+        <copy todir="${dest.src}">
             <fileset dir="src">
                 <include name="**/*.*"/>
             </fileset>
-            <fileset dir="conf">
-                <include name="**/*.*"/>
-            </fileset>
+        </copy>
+
+        <copy todir="${dest.classes}">
+            <file basedir="conf" file="conf/logback.xml"/>
         </copy>
     </target>
 
     <target name="compile" depends="prepare">
-        <javac destdir="${dest.classes}" srcdir="${dest}/${dest.src}" encoding="UTF-8">
+        <javac destdir="${dest.classes}" srcdir="${dest.src}" encoding="UTF-8">
             <classpath>
                 <fileset dir="lib">
                     <include name="*.jar"/>
@@ -68,30 +49,20 @@
         <typedef name="fatjar.filesource" classname="net.sf.fjep.anttask.FJFileSourceType" classpath="fatjar.jar"/>
         <typedef name="fatjar.jarsource" classname="net.sf.fjep.anttask.FJJarSourceType" classpath="fatjar.jar"/>
 
-        <fatjar.build output="${dest}/${dest.name}">
-            <fatjar.manifest mainclass="${dest.main}"/>
+        <fatjar.build output="${dest}/${jarName}">
+            <fatjar.manifest mainclass="${mainClass}"/>
             <fatjar.filesource path="${dest.classes}"/>
 
-            <fatjar.jarsource file="lib/commons-httpclient-3.1.jar"/>
             <fatjar.jarsource file="lib/commons-io-2.4.jar"/>
-            <fatjar.jarsource file="lib/httpclient-4.5.1.jar"/>
-            <fatjar.jarsource file="lib/httpcore-4.4.3.jar"/>
             <fatjar.jarsource file="lib/logback-classic-1.1.3.jar"/>
             <fatjar.jarsource file="lib/logback-core-1.1.3.jar"/>
             <fatjar.jarsource file="lib/slf4j-api-1.7.10.jar"/>
         </fatjar.build>
     </target>
 
-    <!--<target name="jar" depends="compile">-->
-    <!--<jar jarfile="${dest}/${dest.name}" basedir="${dest.classes}">-->
-    <!--&lt;!&ndash;为jar包指定manifest，当然，如果jar包不需要打成runnable的形式，manifest可以不要&ndash;&gt;-->
-    <!--<manifest>-->
-    <!--&lt;!&ndash;指定main-class&ndash;&gt;-->
-    <!--<attribute name="Main-Class" value="${dest.main}"/>-->
-    <!--&lt;!&ndash;指定Class-Path&ndash;&gt;-->
-    <!--<attribute name="Class-Path" value="${lib}">-->
-    <!--</attribute>-->
-    <!--</manifest>-->
-    <!--</jar>-->
-    <!--</target>-->
+    <target name="finish" depends="fatjar">
+        <delete dir="${dest.src}"/>
+        <delete dir="${dest.classes}"/>
+    </target>
+
 </project>

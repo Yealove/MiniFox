@@ -1,0 +1,13 @@
+#url配置
+/busi/sub
+#值的匹配方式 word-整词匹配(默认)|contain-包含匹配(实际值包含配置值)|regex-正则匹配
+_match                   ^contain
+#默认返回文件名
+_default                 ^default.txt
+#规则(节点=值,多个以英文都会分隔)^返回文件名
+node1=123,node2=234      ^file1.txt
+node2=121                ^file2.xml
+#url配置结束标志
+_end
+
+

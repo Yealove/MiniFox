@@ -1,18 +1,13 @@
-package com.yealove.listener;
+package com.yealove.serve;
 
 
 import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * <简单描述>
@@ -23,7 +18,7 @@ public class Tester {
 
     public static void main(String[] args) {
         try {
-            String url = "http://192.168.1.105:5678/order/test";
+            String url = "http://192.168.1.105:5678/busi/sub";
             // 使用默认配置创建httpclient的实例
             CloseableHttpClient client = HttpClients.createMinimal();
 
@@ -33,10 +28,7 @@ public class Tester {
              * 设置参数，常用的有StringEntity,UrlEncodedFormEntity,MultipartEntity
              * 具体看org.apache.http.entity包
              */
-            List<NameValuePair> params = new ArrayList<NameValuePair>();
-            params.add(new BasicNameValuePair("username", "张三"));
-            params.add(new BasicNameValuePair("password", "123456"));
-            UrlEncodedFormEntity e = new UrlEncodedFormEntity(params, "UTF-8");
+            StringEntity e = new StringEntity("<node2>12211123123</node2>");
             post.setEntity(e);
 
             CloseableHttpResponse response = client.execute(post);
@@ -49,7 +41,7 @@ public class Tester {
             String respStr = null;
             HttpEntity entity = response.getEntity();
             if(entity != null) {
-                respStr = EntityUtils.toString(entity, "UTF-8");
+                respStr = EntityUtils.toString(entity, "ISO-8859-1");
             }
             System.out.println();
             System.out.println(respStr);

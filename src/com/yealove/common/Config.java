@@ -32,17 +32,6 @@ public class Config {
      */
     private static Map<String, UrlConfig> urlConfigMap = new HashMap<String, UrlConfig>();
 
-
-    public static void main(String[] args) throws IOException {
-//        FileWriter fw = new FileWriter("default.txt");
-//        fw.write(3322);
-//        fw.flush();
-//        fw.close();
-//
-        Config.init();
-        System.out.println(Config.getResultFileName("/order/test", "<order><status>fail</status><oid>HD-0001</oid></order>"));
-    }
-
     /**
      * 初始化，读取配置文件
      */
@@ -99,6 +88,20 @@ public class Config {
                             continue;
                         }
 
+                        if ("_match".equals(rulesStr)) {
+                            Match match = Match.WORD;
+
+                            if("contain".equals(fileName)) {
+                                match = Match.CONTAIN;
+                            }
+
+                            if ("regex".equals(fileName)) {
+                                match = Match.REGEX;
+                            }
+                            urlConfig.match = match;
+                            continue;
+                        }
+
                         Rule rule = new Rule();
                         rule.fileName = fileName;
 
@@ -148,12 +151,14 @@ public class Config {
 
 
         for (Rule rule : rules) {
-            boolean isThisRule = false;
+            boolean isThisRule = true;
             //未匹配规则个数
             int noMatchCount = 0;
 
             //规则校验
             for (Relation relation : rule.relations) {
+                boolean isBreakFor = false;
+
                 int startIndex = xml.indexOf("<" + relation.key + ">") + relation.key.length() + 2;
                 int endIndex = xml.indexOf("</" + relation.key + ">");
 
@@ -161,8 +166,33 @@ public class Config {
                 if (startIndex > -1 && endIndex > -1 && endIndex > startIndex) {
                     String value = xml.substring(startIndex, endIndex);
                     //如果报文中的值与配置的值不匹配，则本条规则校验失败
-                    if (!value.equals(relation.value)) {
-                        isThisRule = false;
+                    switch (urlConfig.match) {
+                        case CONTAIN: {
+                            if (!value.contains(relation.value)) {
+                                isThisRule = false;
+                                isBreakFor = true;
+                            }
+                            break;
+                        }
+
+                        case REGEX: {
+                            if (!value.matches(relation.value)) {
+                                isThisRule = false;
+                                isBreakFor = true;
+                            }
+                            break;
+                        }
+
+                        default: {
+                            if (!value.equals(relation.value)) {
+                                isThisRule = false;
+                                isBreakFor = true;
+                            }
+                            break;
+                        }
+                    }
+
+                    if(isBreakFor) {
                         break;
                     }
                 } else {
@@ -191,6 +221,7 @@ public class Config {
     private static class UrlConfig {
         List<Rule> rules = new ArrayList<Rule>();
         String defaultFileName;
+        Match match = Match.WORD;
     }
 
     /**
