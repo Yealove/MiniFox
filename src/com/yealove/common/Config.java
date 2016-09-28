@@ -168,7 +168,7 @@ public class Config {
                     //如果报文中的值与配置的值不匹配，则本条规则校验失败
                     switch (urlConfig.match) {
                         case CONTAIN: {
-                            if (!value.contains(relation.value)) {
+                            if (!relation.value.contains(value)) {
                                 isThisRule = false;
                                 isBreakFor = true;
                             }

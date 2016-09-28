@@ -1,6 +1,6 @@
 #url配置
 /busi/sub
-#值的匹配方式 word-整词匹配(默认)|contain-包含匹配(实际值包含配置值)|regex-正则匹配
+#值的匹配方式 word-整词匹配(默认)|contain-包含匹配(配置值包含实际值)|regex-正则匹配
 _match                   ^contain
 #默认返回文件名
 _default                 ^default.txt
